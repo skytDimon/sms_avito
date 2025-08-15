@@ -1,0 +1,6 @@
+2025-08-15 21:40:57,443 - INFO - Запуск в режиме постоянной проверки (интервал: 300 сек)
+2025-08-15 21:40:57,443 - INFO - Начинаем проверку новых сообщений...
+2025-08-15 21:41:06,937 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ConnectionResetError(54, 'Connection reset by peer')': /session/d25a735250f0a89b27c153f9f1f3d6ce
+2025-08-15 21:41:06,945 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1041b4e10>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/d25a735250f0a89b27c153f9f1f3d6ce
+2025-08-15 21:41:06,946 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1041350f0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/d25a735250f0a89b27c153f9f1f3d6ce
+2025-08-15 21:41:06,947 - INFO - Остановка программы по запросу пользователя

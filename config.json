@@ -1,0 +1,11 @@
+{
+    "telegram": {
+        "bot_token": "7936936135:AAENnQtZ_u4C88PEHMYri5aNIyUqVXXKnEA",
+        "chat_ids": ["821740830", "252033906"]
+    },
+    "avito": {
+        "api_key": "vyiRNatyjlSFoGlaDChwMM4ixk_r8eImtp2xrv6c",
+        "user_id": "OaSTGKusrDzBfUvdabYy",
+        "method": "scraping"
+    }
+}
