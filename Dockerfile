@@ -1,28 +1,19 @@
 # Используем официальный Python образ
 FROM python:3.11-slim
 
-# Устанавливаем системные зависимости для Chrome и ChromeDriver
+# Метаданные
+LABEL maintainer="Avito Message Forwarder"
+LABEL description="Telegram message forwarder for Avito notifications"
+
+# Устанавливаем системные зависимости
 RUN apt-get update && apt-get install -y \
-    wget \
-    gnupg \
-    unzip \
     curl \
-    xvfb \
+    tzdata \
     && rm -rf /var/lib/apt/lists/*
 
-# Устанавливаем Google Chrome
-RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - \
-    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
-    && apt-get update \
-    && apt-get install -y google-chrome-stable \
-    && rm -rf /var/lib/apt/lists/*
-
-# Устанавливаем ChromeDriver
-RUN CHROME_DRIVER_VERSION=`curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE` \
-    && wget -O /tmp/chromedriver.zip http://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip \
-    && unzip /tmp/chromedriver.zip chromedriver -d /usr/local/bin/ \
-    && rm /tmp/chromedriver.zip \
-    && chmod +x /usr/local/bin/chromedriver
+# Устанавливаем временную зону
+ENV TZ=Europe/Moscow
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Создаем рабочую директорию
 WORKDIR /app
@@ -31,22 +22,30 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Устанавливаем Python зависимости
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Создаем пользователя для безопасности
+RUN useradd -m -u 1000 appuser && \
+    mkdir -p /app/logs && \
+    chown -R appuser:appuser /app
 
 # Копируем исходный код приложения
-COPY . .
+COPY --chown=appuser:appuser . .
 
-# Создаем пользователя для безопасности (Chrome не должен запускаться от root)
-RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+# Переключаемся на непривилегированного пользователя
 USER appuser
 
-# Устанавливаем переменные окружения для Chrome
-ENV DISPLAY=:99
-ENV CHROME_BIN=/usr/bin/google-chrome
-ENV CHROME_PATH=/usr/bin/google-chrome
+# Переменные окружения
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
 
-# Открываем порт (если потребуется в будущем)
-EXPOSE 8080
+# Проверка здоровья контейнера
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python3 -c "import requests; requests.get('https://api.telegram.org')" || exit 1
+
+# Том для логов
+VOLUME ["/app/logs"]
 
 # Команда для запуска приложения
 CMD ["python3", "main.py"]

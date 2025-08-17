@@ -169,6 +169,10 @@ def test_avito_config(avito_config):
         print("⚠️ Веб-скрапинг настроен, но требует дополнительной настройки ChromeDriver")
         return True
     
+    elif method == 'disabled':
+        print("ℹ️ Avito интеграция отключена - работает только Telegram")
+        return True
+    
     else:
         print(f"❌ Неизвестный метод: {method}")
         return False

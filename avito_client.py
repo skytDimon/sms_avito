@@ -10,12 +10,6 @@ import logging
 from typing import Dict, List, Optional
 from datetime import datetime
 import time
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
 
@@ -145,48 +139,14 @@ class AvitoClient:
     
     def get_messages_via_scraping(self) -> List[Dict]:
         """
-        Получение сообщений через веб-скрапинг (если API недоступен)
+        Получение сообщений через веб-скрапинг (упрощенная версия без Selenium)
         
         Returns:
             List[Dict]: Список сообщений
         """
         messages = []
-        
-        try:
-            # Настройка Chrome WebDriver
-            chrome_options = Options()
-            chrome_options.add_argument('--headless')  # Запуск в фоновом режиме
-            chrome_options.add_argument('--no-sandbox')
-            chrome_options.add_argument('--disable-dev-shm-usage')
-            chrome_options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
-            
-            driver = webdriver.Chrome(options=chrome_options)
-            
-            try:
-                # Переходим на страницу сообщений Avito
-                driver.get('https://www.avito.ru/profile/messenger')
-                
-                # Ждем загрузки страницы
-                WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.TAG_NAME, "body"))
-                )
-                
-                # Здесь нужно будет добавить логику авторизации
-                # и парсинга сообщений в зависимости от структуры страницы
-                
-                # Получаем HTML страницы
-                page_source = driver.page_source
-                soup = BeautifulSoup(page_source, 'html.parser')
-                
-                # TODO: Добавить парсинг сообщений
-                # Это зависит от актуальной структуры HTML Avito
-                
-            finally:
-                driver.quit()
-                
-        except Exception as e:
-            logger.error(f"Ошибка при скрапинге Avito: {e}")
-            
+        logger.warning("Метод скрапинга недоступен без Selenium. Используйте API метод.")
+        logger.info("Для работы через API настройте 'method': 'api' в config.json")
         return messages
     
     def get_messages(self) -> List[Dict]:
@@ -200,6 +160,9 @@ class AvitoClient:
             return self.get_messages_via_api()
         elif self.method == 'scraping':
             return self.get_messages_via_scraping()
+        elif self.method == 'disabled':
+            logger.info("Avito интеграция отключена - используется только Telegram")
+            return []
         else:
             logger.error(f"Неизвестный метод получения сообщений: {self.method}")
             return []
